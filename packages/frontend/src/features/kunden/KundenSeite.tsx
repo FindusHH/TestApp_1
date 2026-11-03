@@ -15,11 +15,13 @@ import { kundenApi } from './kunden.api';
 export function KundenSeite() {
   const crud = useCrud<KundeRecord>(kundenApi);
   const { isDark, toggleTheme } = useTheme();
-  const { signOut } = useAuth();
+  const { signOut, session } = useAuth();
+  const benutzerEmail = session?.user?.email ?? null;
 
   const [dialogOffen, setDialogOffen] = useState(false);
   const [bearbeite, setBearbeite] = useState<KundeRecord | null>(null);
   const [absende, setAbsende] = useState(false);
+  const [abmeldenOffen, setAbmeldenOffen] = useState(false);
 
   // Das Formular wird erst nach erfolgreichem Speichern geschlossen. useCrud
   // fängt Fehler intern ab und setzt `error`; bei einem Fehler bleibt der
@@ -71,7 +73,15 @@ export function KundenSeite() {
               Kunden anlegen, bearbeiten und verwalten – für das ganze Team.
             </p>
           </div>
-          <div className="flex items-center gap-300">
+          <div className="flex flex-wrap items-center justify-end gap-300">
+            {benutzerEmail ? (
+              <span
+                className="max-w-[16rem] truncate text-200 text-muted-foreground"
+                title={benutzerEmail}
+              >
+                Angemeldet als <span className="font-medium">{benutzerEmail}</span>
+              </span>
+            ) : null}
             <button
               type="button"
               onClick={toggleTheme}
@@ -91,7 +101,7 @@ export function KundenSeite() {
             </button>
             <button
               type="button"
-              onClick={() => void signOut()}
+              onClick={() => setAbmeldenOffen(true)}
               className="rounded-md border border-input px-400 py-200 text-300 font-medium hover:bg-accent"
             >
               Abmelden
@@ -144,6 +154,48 @@ export function KundenSeite() {
               onSubmit={absenden}
               onCancel={dialogSchliessen}
             />
+          </div>
+        </div>
+      ) : null}
+
+      {abmeldenOffen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-400"
+          role="presentation"
+          onClick={() => setAbmeldenOffen(false)}
+        >
+          <div
+            role="alertdialog"
+            aria-modal="true"
+            aria-label="Abmelden bestätigen"
+            className="w-full max-w-md rounded-xl border border-border bg-card p-600 text-card-foreground shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-500 font-semibold">Abmelden?</h2>
+            <p className="mt-200 text-300 text-muted-foreground">
+              {benutzerEmail
+                ? `Du wirst als ${benutzerEmail} abgemeldet und zum Anmeldebildschirm zurückgeleitet.`
+                : 'Du wirst abgemeldet und zum Anmeldebildschirm zurückgeleitet.'}
+            </p>
+            <div className="mt-600 flex justify-end gap-300">
+              <button
+                type="button"
+                onClick={() => setAbmeldenOffen(false)}
+                className="rounded-md px-400 py-200 text-300 font-medium hover:bg-accent"
+              >
+                Abbrechen
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAbmeldenOffen(false);
+                  void signOut();
+                }}
+                className="rounded-md bg-destructive px-400 py-200 text-300 font-medium text-destructive-foreground hover:opacity-90"
+              >
+                Abmelden
+              </button>
+            </div>
           </div>
         </div>
       ) : null}
