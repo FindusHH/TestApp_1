@@ -57,6 +57,9 @@ export interface IAuthService {
    */
   signIn(): Promise<OpaqueSession>;
 
+  /** End the current session, if the environment supports authentication. */
+  signOut?(): Promise<void>;
+
   /** Observe sign-out or refresh failure after a session has been established. */
   onSessionChange?(
     listener: (session: OpaqueSession | null) => void
@@ -214,6 +217,10 @@ class RayfinAuthService implements IAuthService {
     if (this.client.auth.getSession().isAnonymous)
       await this.client.auth.signOut();
     return ensureSignedInWithFabric(this.client.auth, this.fabricOptions);
+  }
+
+  async signOut(): Promise<void> {
+    await this.client.auth.signOut();
   }
 
   onSessionChange(

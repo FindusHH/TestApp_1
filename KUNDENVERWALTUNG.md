@@ -97,12 +97,12 @@ Quellen: [Fabric Apps – Prerequisites](https://learn.microsoft.com/fabric/apps
 
 ## 3. Installation und Einrichtung der Entwicklungsumgebung
 
-Alle Befehle werden im **Projektstammverzeichnis** `C:\Users\Student\TestApp_1` in einer PowerShell ausgeführt.
+Alle Befehle werden im **Projektstammverzeichnis** `C:\Users\stefa\source\rayfin_sql_test\TestApp_1` in einer PowerShell ausgeführt.
 
 ### 3.1 Abhängigkeiten installieren
 
 ```powershell
-cd C:\Users\Student\TestApp_1
+cd C:\Users\stefa\source\rayfin_sql_test\TestApp_1
 npm install
 ```
 
@@ -377,6 +377,13 @@ Die Client-Validierung muss **exakt** den Server-Constraints entsprechen.
 
 Quellen: [Read and write data with GraphQL](https://learn.microsoft.com/fabric/apps/read-write-data-graphql) · [Rayfin SDK (JavaScript) overview](https://learn.microsoft.com/javascript/api/fabric-apps-sdk-javascript/rayfin-overview)
 
+### 7.7 Umgesetzte Dateien
+
+Die konkret angelegten bzw. geänderten Dateien (Frontend-Feature `kunden`
+sowie die Verdrahtung in `shared`/`data`) sind in
+[UMSETZUNG-KUNDENVERWALTUNG.md](./UMSETZUNG-KUNDENVERWALTUNG.md) je Datei mit
+Zweck, Exporten/Props und Hinweisen dokumentiert.
+
 ---
 
 ## 8. Lokal starten und testen
@@ -436,8 +443,8 @@ Die App ist bereits einmal deployt. `rayfin/.deployments.json` enthält das akti
 | Eigenschaft | Wert |
 |---|---|
 | Deployment-Profil | `ws-rayfin-start` |
-| Fabric-Element | `testapp-1` |
-| Hosting-URL | <https://slim-knoll-a83b8587aa-northeurope.webapp.fabricapps.net> |
+| Fabric-Element | `testapp-1` (Item-ID `4d71422e-80a1-4f23-aec3-ee11d1f982fc`) |
+| Hosting-URL | <https://still-spur-7d33643e65-northeurope.webapp.fabricapps.net> |
 
 Ein erneutes `rayfin up` **aktualisiert dasselbe Element** – es wird nichts doppelt angelegt.
 

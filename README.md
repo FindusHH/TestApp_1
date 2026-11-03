@@ -6,6 +6,13 @@ This is the workspace template the Rayfin Copilot plugin uses to build Fabric Ap
 The base is small on purpose: dynamic authentication, theming, an error boundary, and a welcome page that works inside or outside the Fabric portal after sign-in.
 Capabilities such as Power BI analytics and trusted server-side functions are added on demand with `npm run pack:add -- <pack>`.
 
+## Project documentation (Kundenverwaltung)
+
+This app adds a customer-management feature (Kundenverwaltung) backed by a Fabric SQL database:
+
+- [KUNDENVERWALTUNG.md](./KUNDENVERWALTUNG.md) — step-by-step guide (data model, UI, deployment).
+- [UMSETZUNG-KUNDENVERWALTUNG.md](./UMSETZUNG-KUNDENVERWALTUNG.md) — the added/changed files, documented per file.
+
 ## Workspace layout
 
 The application is an npm workspace with one control root and three base packages:

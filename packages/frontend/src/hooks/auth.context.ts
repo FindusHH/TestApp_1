@@ -21,6 +21,8 @@ export interface AuthContextValue {
   canSignIn: boolean;
   /** Start the interactive Fabric sign-in flow. */
   signIn: () => Promise<void>;
+  /** End the current session and return to the sign-in gate. */
+  signOut: () => Promise<void>;
   /** True while an interactive sign-in is in progress. */
   isSigningIn: boolean;
   /** Last error from interactive sign-in, if any. */

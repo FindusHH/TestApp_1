@@ -5,27 +5,45 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
+import type { OpaqueSession } from '@microsoft/rayfin-auth';
 import { render } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 
-// The welcome view polls a dev-only activity endpoint via `useSourceActivity`.
-// In this smoke test there is no dev server, so stub the hook to return no feed:
-// the view renders its illustrative state synchronously and nothing settles after
-// the test (which would otherwise log a React `act(...)` warning).
-vi.mock('./Welcome.activity', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('./Welcome.activity')>();
-  return { ...actual, useSourceActivity: () => null };
-});
-
 import App from '@/App';
+import { AuthProvider } from '@/hooks/use-auth';
+import type { IAuthService } from '@/services/rayfin-auth.service';
+
+const authenticated: OpaqueSession = {
+  user: null,
+  isAuthenticated: true,
+  isAnonymous: false,
+};
+
+function authService(): IAuthService {
+  return {
+    config: { kind: 'ready' },
+    canSignIn: true,
+    resolveSession: vi.fn(async () => authenticated),
+    signIn: vi.fn(async () => authenticated),
+    signOut: vi.fn(async () => {}),
+  };
+}
+
+function renderApp() {
+  return render(
+    <AuthProvider rayfinAuthService={authService()}>
+      <App />
+    </AuthProvider>
+  );
+}
 
 describe('App', () => {
   it('renders without throwing', () => {
-    expect(() => render(<App />)).not.toThrow();
+    expect(() => renderApp()).not.toThrow();
   });
 
   it('mounts content into the document', () => {
-    render(<App />);
+    renderApp();
     expect(document.body).not.toBeEmptyDOMElement();
   });
 });

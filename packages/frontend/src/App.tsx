@@ -5,11 +5,11 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-import { EmptyStatePreview } from './EmptyStatePreview';
+import { KundenSeite } from './features/kunden/KundenSeite';
 
 // Replace this starting view with your app. See README.md for welcome cleanup.
 function App() {
-  return <EmptyStatePreview />;
+  return <KundenSeite />;
 }
 
 export default App;

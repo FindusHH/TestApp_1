@@ -86,6 +86,16 @@ export function AuthProvider({
     }
   }, [rayfinAuthService]);
 
+  const signOut = useCallback(async () => {
+    try {
+      await rayfinAuthService.signOut?.();
+    } finally {
+      setSession(null);
+      setError(null);
+      setSignInError(null);
+    }
+  }, [rayfinAuthService]);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       session,
@@ -93,6 +103,7 @@ export function AuthProvider({
       isLoading,
       canSignIn: rayfinAuthService.canSignIn,
       signIn,
+      signOut,
       isSigningIn,
       signInError,
       config: rayfinAuthService.config,
@@ -104,6 +115,7 @@ export function AuthProvider({
       isLoading,
       rayfinAuthService,
       signIn,
+      signOut,
       isSigningIn,
       signInError,
       error,

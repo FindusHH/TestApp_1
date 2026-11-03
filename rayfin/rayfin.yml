@@ -12,11 +12,12 @@ services:
     allowedRedirectUris:
       - http://localhost:5173
       - http://127.0.0.1:5173
-      - https://slim-knoll-a83b8587aa-northeurope.webapp.fabricapps.net
+      - https://still-spur-7d33643e65-northeurope.webapp.fabricapps.net
   data:
-    enabled: false
+    enabled: true
     path: packages/data
     buildCommand: npm run build
+    dialect: mssql
   staticHosting:
     enabled: true
     path: packages/frontend
