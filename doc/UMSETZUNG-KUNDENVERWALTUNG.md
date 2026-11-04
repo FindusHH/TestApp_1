@@ -116,7 +116,7 @@ und 6.2 der Anleitung).
 
 Exportiert jetzt `KundeStatus`, `KundeRecord` und `UniversalAppSchema` aus
 `./Kunde` (der browser-sichere Vertrag in
-[`packages/shared/src/Kunde.ts`](./packages/shared/src/Kunde.ts)). Der frühere
+[`packages/shared/src/Kunde.ts`](../packages/shared/src/Kunde.ts)). Der frühere
 `ItemRecord`-Typ wurde entfernt.
 
 ### `packages/data/src/index.ts` (geändert)
@@ -127,7 +127,7 @@ Registriert die dekorierte Klasse `Kunde` im `schema`-Array und re-exportiert
 ### `packages/data/src/Item.ts` (gelöscht)
 
 Die Beispiel-Entity wurde entfernt, da sie durch
-[`packages/data/src/Kunde.ts`](./packages/data/src/Kunde.ts) ersetzt ist.
+[`packages/data/src/Kunde.ts`](../packages/data/src/Kunde.ts) ersetzt ist.
 
 ---
 

@@ -1,209 +1,191 @@
-# Universal App Template
+# TestApp_1 – Kundenverwaltung (Microsoft Fabric App)
 
-> **⚠️ This repository is under active development.** Features and instructions may change.
+Eine einfache Web-App zur **Kundenverwaltung**: Kundendatensätze anlegen, anzeigen, bearbeiten und löschen. Die App ist mit **React + Vite** gebaut und läuft auf **Microsoft Fabric** (Anmeldung über dein Microsoft-Organisationskonto, Daten in einer Fabric-SQL-Datenbank).
 
-This is the workspace template the Rayfin Copilot plugin uses to build Fabric Apps.
-The base is small on purpose: dynamic authentication, theming, an error boundary, and a welcome page that works inside or outside the Fabric portal after sign-in.
-Capabilities such as Power BI analytics and trusted server-side functions are added on demand with `npm run pack:add -- <pack>`.
+> **Die Live-App läuft bereits hier:** <https://still-spur-7d33643e65-northeurope.webapp.fabricapps.net>
+> Zum Öffnen brauchst du ein berechtigtes Microsoft-Geschäfts-/Schulkonto (Entra ID) im passenden Tenant.
 
-## Project documentation (Kundenverwaltung)
+Diese README führt dich **Schritt für Schritt** durch Installation und Start – auch ganz ohne Vorkenntnisse zu Rayfin oder Fabric. Folge den Abschnitten einfach von oben nach unten.
 
-This app adds a customer-management feature (Kundenverwaltung) backed by a Fabric SQL database:
+---
 
-- [KUNDENVERWALTUNG.md](./KUNDENVERWALTUNG.md) — step-by-step guide (data model, UI, deployment).
-- [UMSETZUNG-KUNDENVERWALTUNG.md](./UMSETZUNG-KUNDENVERWALTUNG.md) — the added/changed files, documented per file.
+## 1. Was du brauchst (einmalig)
 
-## Workspace layout
+Du brauchst **zwei** Dinge:
 
-The application is an npm workspace with one control root and three base packages:
+### a) Node.js auf deinem Rechner
 
-```text
-.
-├── package.json                 # Root commands, workspace members, and applied packs
-├── rayfin/
-│   └── rayfin.yml               # Rayfin services and package paths
-├── packages/
-│   ├── frontend/                # React, Vite, UI, and static output
-│   ├── data/                    # Entity registration and data schema exports
-│   └── shared/                  # Isomorphic contracts shared across runtimes
-└── scripts/                     # Capability-pack tooling and template checks
+1. Lade Node.js (Version **20, 22 oder 24**) herunter und installiere es: <https://nodejs.org/en/download>
+2. Prüfe danach in einer **PowerShell** (Windows) bzw. einem Terminal, ob es funktioniert:
+
+   ```powershell
+   node -v
+   npm -v
+   ```
+
+   Es sollten zwei Versionsnummern erscheinen (z. B. `v22.x.x` und `11.x.x`). Wenn ja, ist dieser Schritt erledigt.
+
+> `npm` wird zusammen mit Node.js installiert – du musst es **nicht** separat installieren.
+> Die Fabric-Werkzeuge (Rayfin CLI) sind im Projekt enthalten und werden automatisch über `npx` genutzt – **keine** globale Installation nötig.
+
+### b) Ein Microsoft-Fabric-Zugang
+
+Die App speichert Daten in **Microsoft Fabric** und meldet dich dort an. Dafür brauchst du:
+
+- ein **Microsoft-Geschäfts-/Schulkonto** (Entra ID),
+- einen **Fabric-Workspace mit zugewiesener Kapazität** (Trial genügt),
+- die aktivierte Vorschau-Funktion **„Fabric Apps"** (durch eine*n Fabric-Administrator*in),
+- mindestens die Rolle **Contributor** in diesem Workspace.
+
+> Hast du das noch nicht? Die genauen Voraussetzungen und wie du sie einrichtest, stehen ausführlich in **[doc/KUNDENVERWALTUNG.md](./doc/KUNDENVERWALTUNG.md)**, Abschnitt 2.
+> **Ohne Fabric-Zugang kann die App ihre Daten nicht speichern** – dieser Punkt ist leider unvermeidbar.
+
+---
+
+## 2. Projekt herunterladen
+
+Variante A – mit Git (empfohlen):
+
+```powershell
+git clone https://github.com/FindusHH/TestApp_1.git
+cd TestApp_1
 ```
 
-The packages have stable internal names: `@rayfin-app/frontend`, `@rayfin-app/data`, and `@rayfin-app/shared`.
-Scaffolding personalizes only the root package name; it does not rename member packages, local dependency keys, or import specifiers.
-The root coordinates the workspace but is not another application package.
+Variante B – ohne Git: Auf GitHub oben rechts auf **Code → Download ZIP**, das ZIP entpacken und in den entpackten Ordner wechseln.
 
-The base does not include `packages/functions`.
-That package is created only when the functions capability is applied.
+> Alle folgenden Befehle werden **im Projekt-Hauptordner** (dort, wo diese `README.md` liegt) ausgeführt.
 
-## Root and package commands
+---
 
-Run the normal workflow from the workspace root:
+## 3. Abhängigkeiten installieren
 
-| Command                      | What it does                                                          |
-| ---------------------------- | --------------------------------------------------------------------- |
-| `npm run dev`                | Starts Rayfin local services and the frontend development server.     |
-| `npm run dev:frontend`       | Starts only the frontend development server.                          |
-| `npm run build`              | Builds shared contracts, data definitions, and the frontend in order. |
-| `npm run build:fabric`       | Builds the workspace with the frontend's Fabric packaging behavior.   |
-| `npm run typecheck`          | Type-checks the referenced workspace projects.                        |
-| `npm run lint`               | Lints the frontend package.                                           |
-| `npm test`                   | Runs the frontend test suite.                                         |
-| `npm run preview`            | Previews the built frontend.                                          |
-| `npm run pack:add -- <pack>` | Applies a capability pack and installs its dependencies.              |
-| `npm run rayfin:up`          | Provisions or updates the app's Fabric resources.                     |
-| `npm run test:template`      | Runs template and capability-pack contract tests.                     |
-
-Root commands are the supported day-to-day interface and are also used by plugin validation.
-For focused work, npm workspace commands remain available:
-
-```sh
-npm run -w @rayfin-app/frontend test
-npm run -w @rayfin-app/data build
-npm run -w @rayfin-app/shared build
+```powershell
+npm install
 ```
 
-Rayfin service commands run from each configured service path, so service build commands are package-local:
+Das lädt einmalig alle benötigten Pakete herunter. Bitte **nur hier im Hauptordner** ausführen – nicht in den Unterordnern.
 
-- Data uses `packages/data` and runs `npm run build` there.
-- Static hosting uses `packages/frontend`, runs `npm run build:fabric` there, and packages `packages/frontend/dist`.
-- Functions remains disabled until its pack configures `packages/functions`.
+---
 
-## The starting view
+## 4. Bei Microsoft Fabric anmelden
 
-`packages/frontend/src/App.tsx` starts on an illustrated blueprint of the pieces a Fabric App can grow into.
-The blueprint and live source activity ship in every scaffold.
-The optional Finley mascot is off by default.
-Default scaffolds contain no companion code, styles, or tests.
-Replace `<EmptyStatePreview />` in `App.tsx` with your own view when you start building.
-The welcome page is app content and requires an authenticated session.
-The app defaults to light regardless of the operating-system theme, while explicit host appearance and user theme choices remain supported.
-
-Hosted assets are protected by default and standalone sign-in is enabled in `rayfin/rayfin.yml`.
-The dynamic auth service lets the SDK establish the current embedded identity before restoring a standalone session or falling back to Rayfin CLI sign-in during local development.
-When automatic authentication is unavailable, the gate offers Microsoft sign-in from a user gesture instead of rejecting an outside-portal browser.
-Configuration or authentication failures never expose the welcome or other app content.
-Features use `await getRayfinClient()` for authorized service operations; keep the root authentication boundary intact.
-
-During `npm run dev:frontend` the blueprint reflects the source you add and edit
-across the workspace: screens and styling in `packages/frontend`, shared logic in
-`packages/shared`, owned records in `packages/data`, and connections in `rayfin/`.
-Authored frontend service modules contribute to **Calculations**; the stock authentication service stays excluded.
-It reports observed edits only, never build progress or a claim that the app is
-finished. A production build ships no dev endpoint, so the page falls back to an
-illustrative walkthrough. The development-only feed is provided by
-`@microsoft/rayfin-local-dev` and never reaches the production bundle.
-
-### Replacing the welcome
-
-Replace the `EmptyStatePreview` import and render in `packages/frontend/src/App.tsx` with your app.
-If removing the welcome files, first remove `sourceActivity: true` from the `rayfinLocalDev` options in `packages/frontend/vite.config.ts`.
-Update `App.spec.tsx` and `Root.spec.tsx` for the new view, removing their `Welcome.activity` mocks and welcome-specific assertions while preserving auth-gate coverage.
-Then remove `EmptyStatePreview.tsx`, `Welcome*`, and `FabricAppMark.tsx`.
-If the optional companion was included, remove `Finley.tsx`, `Finley.css`, and `Finley.spec.tsx` too.
-Run typecheck, build, and tests after cleanup so no dangling imports remain.
-
-## Capability packs
-
-Apply a capability before customizing the app:
-
-```sh
-npm run pack:add -- analytics
-npm run pack:add -- functions
+```powershell
+npx rayfin login
 ```
 
-Packs install dependencies with one root npm workspace install.
-They do not create nested lockfiles or a separate nested installation.
+Es öffnet sich ein Browserfenster für die Microsoft-Anmeldung. Danach kannst du prüfen, ob du angemeldet bist:
 
-The functions pack creates `packages/functions` as `@rayfin-app/functions`, enables the service at that path, and wires its generated schema into the frontend client.
-It composes the functions build into the root build, Fabric build, and type-check commands.
-Reapplying the pack preserves authored files.
+```powershell
+npx rayfin login status
+```
 
-If an install fails, the runner rolls back pack-owned file changes and reports any concurrent edits it cannot safely restore.
-It preserves the install error and leaves the pack retryable.
-Installed dependencies and installer-written lockfiles are not rolled back.
-Follow the [failure recovery guidance](scripts/pack-manifest.md#failure-recovery) before continuing.
+Es sollte „Signed in" mit deinem Konto erscheinen.
 
-Template tests validate the pack structure and wiring.
-With app dependencies installed, they also check the starter and analytics seed against the generated frontend lint rules.
-They do not validate deployed secrets, app-identity permissions, downstream endpoints, or the maximum duration supported by the hosted functions path.
+---
 
-## Distribution and repository validation
+## 5. App starten
 
-The CLI and VS Code display this workspace as **✨ Use default template**, using the existing `blankapp` template ID.
-Its canonical `universal-app` name remains hidden to avoid a duplicate listing, but it stays selectable explicitly for plugin automation.
-
-Inside the Project Rayfin repository, the parent `samples/universal-app/` directory is a contributor-only Rush validation harness.
-The harness generates an ephemeral `target/`, replaces published Rayfin ranges only in that target with repository-local package links, installs it, and runs the root validation commands.
-The outer harness, local links, generated target, and target install output are not part of a generated app.
-The committed inner template keeps published Rayfin ranges and uses `*` for local workspace members, so it remains distributable without repository-relative dependencies.
-
-## Prerequisites
-
-Install a [supported Node.js release](https://nodejs.org/en/download): Node.js 20, 22, or 24.
-Docker Desktop or Docker Engine is required only when using the Docker development provider.
-Rayfin handles Fabric sign-in when needed.
-Protected sites sign in automatically when hosted, while public sites show a Microsoft sign-in screen.
-Local development auto-signs in for both site types (`autoLogin: true` is set in `vite.config.ts`) using the Rayfin CLI session.
-Run `npx rayfin login` before starting the app if you need to sign in or switch accounts.
-GitHub Copilot CLI is not required to scaffold or run this app.
-
-## Instructions for building a new web app
-
-1. **Open the generated app**: Open a terminal in the project created by the Rayfin CLI, VS Code, or the Rayfin Copilot plugin.
-2. **Install dependencies if needed**: Run `npm install` from the workspace root.
-3. **Build the app**: Use your preferred editor or coding agent.
-   If you use GitHub Copilot CLI, run `copilot`, then describe what you want to build.
-   If the app should read an existing Power BI semantic model, include its name or dataset ID.
-   If it should own its own records, or you want a mock-up, say so instead.
-4. **Deploy it**: Ask Copilot to deploy, or run `npm run rayfin:up`, then open the Fabric URL it returns.
-   Both the direct static-hosting URL and the Fabric portal URL support authenticated use.
-   App content remains protected until sign-in succeeds.
-
-## Seeing your changes
-
-The recommended loop runs both Rayfin services and the frontend:
-
-```sh
+```powershell
 npm run dev
 ```
 
-To run only Vite while working on frontend code:
+Beim ersten Start richtet Rayfin automatisch das Fabric-Backend ein, legt die Datenbank-Tabelle an und erzeugt die nötigen Einstellungen. Das kann ein bis zwei Minuten dauern.
 
-```sh
-npm run dev:frontend
-```
+Öffne anschließend im Browser:
 
-To update the deployed app:
+**<http://localhost:5173>**
 
-```sh
+Nach kurzer Zeit erscheint – automatisch angemeldet – die **Kundenverwaltung**.
+
+> **Beenden:** Im Terminal `Strg + C` drücken.
+
+---
+
+## 6. App benutzen
+
+- **Neuer Kunde:** Button oben rechts → Formular ausfüllen → **Speichern**.
+- **Bearbeiten / Löschen:** über die Schaltflächen in der jeweiligen Tabellenzeile (Löschen muss bestätigt werden).
+- **Suchen / Filtern:** Suchfeld und Status-Auswahl über der Tabelle.
+- **Hell-/Dunkelmodus:** Mond-/Sonnen-Symbol oben rechts.
+- **Abmelden:** Button „Abmelden" oben rechts (mit Sicherheitsabfrage).
+
+Lege testweise einen Kunden an und drücke **F5** – der Kunde bleibt erhalten (die Daten liegen in der Fabric-Datenbank).
+
+---
+
+## 7. Wenn etwas nicht klappt
+
+| Problem | Lösung |
+|---|---|
+| `node` oder `npm` wird nicht gefunden | Node.js neu installieren und PowerShell **neu öffnen** (Schritt 1a). |
+| `npx rayfin login` schlägt fehl | Richtiges Microsoft-Organisationskonto verwenden; ggf. `npx rayfin login --select`. |
+| Nach dem Start keine Daten / Fehler | Kurz warten, dann `npx rayfin up db apply` ausführen. |
+| „Dialect is required" / Deployment-Fehler | Details und weitere Fälle in **[doc/KUNDENVERWALTUNG.md](./doc/KUNDENVERWALTUNG.md)**, Abschnitt 12. |
+
+---
+
+## 8. Optional: Eine eigene Version nach Fabric veröffentlichen
+
+Wenn du deine eigene Kopie online stellen möchtest:
+
+```powershell
 npm run rayfin:up
 ```
 
-Open the direct hosting URL to use the app standalone, or the [Fabric portal](https://app.fabric.microsoft.com) to see it inside the Fabric shell.
+Rayfin legt (bzw. aktualisiert) das App-Element in deinem Fabric-Workspace an und gibt dir am Ende die Hosting-URL aus. Die ausführliche Anleitung inkl. Vorschau (`npx rayfin up -n`) steht in **[doc/KUNDENVERWALTUNG.md](./doc/KUNDENVERWALTUNG.md)**, Abschnitt 10.
 
-<details>
-<summary><strong>💡 Tips</strong></summary>
+---
 
-- Use **Shift + Tab** in Copilot to switch to **Plan mode**, where Copilot will present a plan and ask for confirmation before writing any code.
+## 9. Komplett neu aufsetzen (nach dem Löschen in Fabric)
 
-</details>
+Möchtest du in Fabric „bei null" anfangen – also die App dort löschen und frisch neu erstellen? Das geht. Es gibt **zwei Fälle**:
 
-<details>
-<summary><strong>📝 Example prompts</strong></summary>
+- **Frischer Klon** (neuer Ordner oder anderer Rechner, der noch nie deployt hat): Folge einfach den Schritten 2–5 oben – dabei entsteht automatisch ein **neues** Fabric-Element.
+- **Dieser Ordner** (hat bereits deployt): Du musst zusätzlich den **lokalen Deployment-Status zurücksetzen**, sonst versucht Rayfin, das bereits gelöschte Element wiederzuverwenden.
 
-- `Create a sales performance dashboard using the "Contoso Sales" semantic model. Include revenue KPIs, a monthly trend line chart, top 10 stores by profit, and a regional breakdown bar chart.`
-- `Build an executive summary app for the "HR Analytics" model with headcount by department, attrition rate trends over the past 3 years, and a data grid of open positions sorted by days-to-fill.`
-- `I want a customer insights app using dataset ID 4053a155-34a9-4b74-9bc2-e162f1b27fc7. Show customer lifetime value distribution, churn risk segmentation, and a filterable table of top accounts.`
-- `Create a supply chain monitoring dashboard from the "Logistics Ops" model. I need inventory levels by warehouse, on-time delivery rate KPIs, and a heatmap of shipping delays by region and month.`
-- `Build a financial reporting app using the "GL Financials" semantic model with a P&L summary, expense breakdown by cost center, and quarter-over-quarter variance charts. Add a date range filter across all visuals.`
-- `Build an app where my team can log onboarding tasks and tick them off, where each person only sees their own.`
-- `Build me a mock-up dashboard of support ticket volume — I don't have a data source yet, use sample data.`
-- `Build a workflow that submits approved requests to our third-party fulfillment API without exposing its API key.`
-- `Build an app that asks our published Fabric data agent a question and shows the answer.`
+**Vorgehen für diesen Ordner:**
 
-</details>
+1. Im [Fabric-Portal](https://app.fabric.microsoft.com) den Workspace öffnen und die App-Elemente löschen (die zugehörige SQL-Datenbank wird automatisch mitgelöscht).
+2. Den lokalen Deployment-Status zurücksetzen: Sicherungen anlegen, `rayfin/.deployments.json` leeren und die item-spezifischen Werte in `rayfin/.env` entfernen.
+3. Neu deployen: `npm run rayfin:up`.
 
-## Need help?
+Die genaue, Schritt-für-Schritt-Anleitung dazu (inkl. der exakten Befehle zum Zurücksetzen) steht in **[doc/SEMINAR-Workspace-Bereinigung-und-Redeploy.md](./doc/SEMINAR-Workspace-Bereinigung-und-Redeploy.md)**, Abschnitte 4–6.
 
-If you have any questions or run into any problems, please [file a Project Rayfin issue](https://github.com/microsoft/project-rayfin/issues/new/choose).
+> ⚠️ **Beachte:** Beim Neuanlegen entsteht ein **neues** Element mit **neuer Hosting-URL**, und **vorhandene Daten gehen verloren**. Willst du URL und Daten behalten, lösche das Element nicht, sondern deploye einfach erneut darauf (`npm run rayfin:up`).
+
+---
+
+## 10. Projektstruktur (kurz)
+
+```text
+.
+├── package.json          # Projekt-Befehle (dev, build, test, …)
+├── rayfin/rayfin.yml      # Fabric-Dienste (Auth, Datenbank, Hosting)
+├── doc/                   # Ausführliche Dokumentation (siehe unten)
+└── packages/
+    ├── frontend/          # Die React-App (Oberfläche)
+    ├── data/              # Datenmodell „Kunde" (Datenbank-Tabelle)
+    └── shared/            # Gemeinsame Typen für Frontend und Daten
+```
+
+---
+
+## 11. Nützliche Befehle
+
+| Befehl | Zweck |
+|---|---|
+| `npm run dev` | App lokal starten (Backend + Frontend). |
+| `npm run dev:frontend` | Nur das Frontend starten (ohne Backend-Abgleich). |
+| `npm run build` | App bauen. |
+| `npm run typecheck` | Typprüfung. |
+| `npm run lint` | Code-Prüfung (Frontend). |
+| `npm test` | Tests ausführen. |
+| `npm run rayfin:up` | Eigene Version nach Fabric veröffentlichen/aktualisieren. |
+
+---
+
+## 12. Weiterführende Dokumentation
+
+- **[doc/KUNDENVERWALTUNG.md](./doc/KUNDENVERWALTUNG.md)** – vollständige Schritt-für-Schritt-Anleitung (Datenmodell, Oberfläche, Deployment, Fehlerbehebung).
+- **[doc/UMSETZUNG-KUNDENVERWALTUNG.md](./doc/UMSETZUNG-KUNDENVERWALTUNG.md)** – welche Dateien die App ausmachen, je Datei erklärt.
+- **[doc/SEMINAR-Workspace-Bereinigung-und-Redeploy.md](./doc/SEMINAR-Workspace-Bereinigung-und-Redeploy.md)** – Trainingsbeispiel: Fabric-Workspace bereinigen und sauber neu deployen.

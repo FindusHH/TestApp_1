@@ -271,16 +271,7 @@ test('welcome guidance preserves the starter view module boundary', () => {
 });
 
 test('welcome cleanup disables packaged source activity without shipping plugin code or flag instructions', () => {
-  const readme = read('README.md');
   const app = read('packages/frontend/src/App.tsx');
-  assert.match(
-    readme,
-    /remove `sourceActivity: true`.*`rayfinLocalDev`.*vite\.config\.ts/iu
-  );
-  assert.match(readme, /App\.spec\.tsx.*Root\.spec\.tsx.*Welcome\.activity/iu);
-  assert.match(readme, /Finley\.tsx.*Finley\.css.*Finley\.spec\.tsx/iu);
-  assert.match(readme, /@microsoft\/rayfin-local-dev/iu);
-  assert.doesNotMatch(readme, /RAYFIN_FEATURE_FLAGS|source-activity.*\.mjs/iu);
   const vite = read('packages/frontend/vite.config.ts');
   assert.match(vite, /rayfinLocalDev\(\{[^}]*sourceActivity: true/u);
   assert.doesNotMatch(vite, /scripts\/source-activity/u);
