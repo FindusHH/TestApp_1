@@ -57,7 +57,7 @@ Quellen: [What is Fabric Apps?](https://learn.microsoft.com/fabric/apps/overview
 TestApp_1/
 ├─ package.json                       # Root-Befehle (dev, build, typecheck, pack:add, …)
 ├─ rayfin/rayfin.yml                  # Fabric-Dienste (auth, data, staticHosting, …)
-├─ rayfin/.deployments.json           # Bestehendes Deployment (Workspace „ws-rayfin-start“)
+├─ rayfin/.deployments.json           # Aktives Deployment-Ziel (nach dem Veröffentlichen; lokal, gitignored)
 └─ packages/
    ├─ data/src/                       # Entities mit Decorators  → Kunde.ts (neu)
    ├─ shared/src/index.ts             # Browser-sichere Typen    → KundeRecord (neu)
@@ -438,15 +438,12 @@ npm test            # Vitest-Tests des Frontends
 
 ## 10. Deployment nach Microsoft Fabric
 
-Die App ist bereits einmal deployt. `rayfin/.deployments.json` enthält das aktive Ziel:
+Beim Veröffentlichen legt Rayfin **App-Element und SQL-Datenbank gemeinsam in denselben Fabric-Workspace** an. Du hast die **Wahl**:
 
-| Eigenschaft | Wert |
-|---|---|
-| Deployment-Profil | `ws-rayfin-start` |
-| Fabric-Element | `testapp-1` (Item-ID `4d71422e-80a1-4f23-aec3-ee11d1f982fc`) |
-| Hosting-URL | <https://still-spur-7d33643e65-northeurope.webapp.fabricapps.net> |
+- **Bestehenden Workspace nutzen:** `npx rayfin up --workspace "<workspace-name>"`
+- **Neuen Workspace automatisch anlegen lassen:** `npm run rayfin:up`
 
-Ein erneutes `rayfin up` **aktualisiert dasselbe Element** – es wird nichts doppelt angelegt.
+Nach dem Deployment stehen die konkreten Zielwerte (Workspace, Item-ID, Hosting-URL) in `rayfin/.deployments.json`; anzeigen lassen kannst du sie mit `npx rayfin up status`. Ein erneutes `rayfin up` auf dasselbe Ziel **aktualisiert dasselbe Element** – es wird nichts doppelt angelegt.
 
 ### 10.1 Anmeldung prüfen
 
@@ -505,7 +502,7 @@ Quellen: [Deploy a Fabric app to Fabric](https://learn.microsoft.com/fabric/apps
 
 ## 11. Kontrolle im Fabric-Portal
 
-1. [Fabric-Portal](https://app.fabric.microsoft.com) öffnen → Workspace **ws-rayfin-start** → Element **testapp-1**.
+1. [Fabric-Portal](https://app.fabric.microsoft.com) öffnen → **deinen Workspace** → Element **testapp-1**.
 2. Unter den untergeordneten Elementen erscheint jetzt **SQL database in Fabric**.
 3. Datenbank öffnen → Objekt-Explorer → Tabelle `Kunde` prüfen.
 4. Im Abfrage-Editor lesend prüfen, z. B.:

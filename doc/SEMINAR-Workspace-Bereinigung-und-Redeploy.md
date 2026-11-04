@@ -179,14 +179,30 @@ Copy-Item rayfin\.env              rayfin\.env.bak              -Force
 
 ## 6. Sauber neu deployen (mit Vorschau)
 
+**App und SQL-Datenbank gehören zusammen** und werden immer **in denselben
+Workspace** deployt – `rayfin up` legt beides (App-Element + SQL database +
+Schema `Kunde`) gemeinsam an. Du hast die **Wahl**, in welchen Workspace:
+
+**Variante A – bestehenden Workspace nutzen** (per Name oder GUID):
+
 ```powershell
-# 1) Vorschau – validiert Eingaben & Workspace, ändert nichts
-npx rayfin up -n --workspace-id <workspace-guid>
+# Vorschau (ändert nichts)
+npx rayfin up -n --workspace "<workspace-name>"
+# Deploy
+npx rayfin up --workspace "<workspace-name>"
+```
 
-# 2) Deploy – legt ein frisches Item "<projekt-id aus rayfin.yml>" an
-npx rayfin up --workspace-id <workspace-guid>
+> Alternativ per GUID: `--workspace-id <workspace-guid>`.
 
-# 3) Kontrolle
+**Variante B – neuen Workspace automatisch anlegen lassen:**
+
+```powershell
+npm run rayfin:up
+```
+
+**Kontrolle (beide Varianten):**
+
+```powershell
 npx rayfin up status
 ```
 

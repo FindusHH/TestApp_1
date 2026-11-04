@@ -2,8 +2,7 @@
 
 Eine einfache Web-App zur **Kundenverwaltung**: Kundendatensätze anlegen, anzeigen, bearbeiten und löschen. Die App ist mit **React + Vite** gebaut und läuft auf **Microsoft Fabric** (Anmeldung über dein Microsoft-Organisationskonto, Daten in einer Fabric-SQL-Datenbank).
 
-> **Die Live-App läuft bereits hier:** <https://still-spur-7d33643e65-northeurope.webapp.fabricapps.net>
-> Zum Öffnen brauchst du ein berechtigtes Microsoft-Geschäfts-/Schulkonto (Entra ID) im passenden Tenant.
+> Diese App wird **nicht zentral gehostet**. Du installierst und startest sie selbst (lokal, Abschnitt 5) bzw. veröffentlichst sie in **deinem eigenen** Fabric-Workspace (Abschnitt 8). Deine persönliche Hosting-URL bekommst du dann beim Veröffentlichen angezeigt.
 
 Diese README führt dich **Schritt für Schritt** durch Installation und Start – auch ganz ohne Vorkenntnisse zu Rayfin oder Fabric. Folge den Abschnitten einfach von oben nach unten.
 
@@ -89,7 +88,7 @@ Es sollte „Signed in" mit deinem Konto erscheinen.
 npm run dev
 ```
 
-Beim ersten Start richtet Rayfin automatisch das Fabric-Backend ein, legt die Datenbank-Tabelle an und erzeugt die nötigen Einstellungen. Das kann ein bis zwei Minuten dauern.
+Beim ersten Start richtet Rayfin automatisch das Fabric-Backend ein, legt die Datenbank-Tabelle an und erzeugt die nötigen Einstellungen. Das kann ein bis zwei Minuten dauern. **Folge dabei etwaigen Rückfragen im Terminal** (z. B. zur Auswahl deines Workspace).
 
 Öffne anschließend im Browser:
 
@@ -126,32 +125,69 @@ Lege testweise einen Kunden an und drücke **F5** – der Kunde bleibt erhalten 
 
 ## 8. Optional: Eine eigene Version nach Fabric veröffentlichen
 
-Wenn du deine eigene Kopie online stellen möchtest:
+Mit **einem** Befehl veröffentlichst du die App. Dabei werden **App und zugehörige SQL-Datenbank zusammen in denselben Fabric-Workspace** deployt – die Datenbank gehört zur App (ohne sie ist die App funktionslos).
+
+Du hast die **Wahl** zwischen zwei Wegen:
+
+**A) In einen bestehenden Workspace deployen** (z. B. wenn du schon einen Workspace mit zugewiesener Kapazität hast):
+
+```powershell
+npx rayfin up --workspace "DEIN-WORKSPACE-NAME"
+```
+
+**B) Einen neuen Workspace automatisch anlegen lassen:**
 
 ```powershell
 npm run rayfin:up
 ```
 
-Rayfin legt (bzw. aktualisiert) das App-Element in deinem Fabric-Workspace an und gibt dir am Ende die Hosting-URL aus. Die ausführliche Anleitung inkl. Vorschau (`npx rayfin up -n`) steht in **[doc/KUNDENVERWALTUNG.md](./doc/KUNDENVERWALTUNG.md)**, Abschnitt 10.
+In beiden Fällen legt Rayfin das App-Element **und** die SQL-Datenbank (Tabelle `Kunde`) **im selben Workspace** an und gibt am Ende die Hosting-URL aus.
+
+Vorschau ohne Änderungen (nichts wird angelegt):
+
+```powershell
+npx rayfin up -n --workspace "DEIN-WORKSPACE-NAME"
+```
+
+Die ausführliche Anleitung steht in **[doc/KUNDENVERWALTUNG.md](./doc/KUNDENVERWALTUNG.md)**, Abschnitt 10.
 
 ---
 
 ## 9. Komplett neu aufsetzen (nach dem Löschen in Fabric)
 
-Möchtest du in Fabric „bei null" anfangen – also die App dort löschen und frisch neu erstellen? Das geht. Es gibt **zwei Fälle**:
+Möchtest du in Fabric „bei null" anfangen – die App dort löschen und frisch neu erstellen? Das geht **komplett mit Befehlen**. Wichtig: `npm run rayfin:up` erstellt **alles** neu – App-Element, **SQL-Datenbank** (inkl. Tabelle `Kunde`) und Frontend. Die Datenbank musst du **nicht** separat anlegen.
 
-- **Frischer Klon** (neuer Ordner oder anderer Rechner, der noch nie deployt hat): Folge einfach den Schritten 2–5 oben – dabei entsteht automatisch ein **neues** Fabric-Element.
-- **Dieser Ordner** (hat bereits deployt): Du musst zusätzlich den **lokalen Deployment-Status zurücksetzen**, sonst versucht Rayfin, das bereits gelöschte Element wiederzuverwenden.
+Es gibt zwei Fälle:
+
+- **Frischer Klon** (neuer Ordner oder anderer Rechner, der noch nie deployt hat): Folge einfach den Schritten 2–5 oben. `npm run rayfin:up` legt dabei automatisch alles an.
+- **Dieser Ordner** (hat bereits deployt): Lösche zusätzlich die zwei lokalen Status-Dateien, damit Rayfin nicht das bereits gelöschte Element wiederzuverwenden versucht.
 
 **Vorgehen für diesen Ordner:**
 
 1. Im [Fabric-Portal](https://app.fabric.microsoft.com) den Workspace öffnen und die App-Elemente löschen (die zugehörige SQL-Datenbank wird automatisch mitgelöscht).
-2. Den lokalen Deployment-Status zurücksetzen: Sicherungen anlegen, `rayfin/.deployments.json` leeren und die item-spezifischen Werte in `rayfin/.env` entfernen.
-3. Neu deployen: `npm run rayfin:up`.
+2. Die zwei lokalen Status-Dateien löschen – **ein Befehl** (Rayfin legt sie beim nächsten Schritt neu an):
 
-Die genaue, Schritt-für-Schritt-Anleitung dazu (inkl. der exakten Befehle zum Zurücksetzen) steht in **[doc/SEMINAR-Workspace-Bereinigung-und-Redeploy.md](./doc/SEMINAR-Workspace-Bereinigung-und-Redeploy.md)**, Abschnitte 4–6.
+   ```powershell
+   Remove-Item rayfin\.deployments.json, rayfin\.env
+   ```
 
-> ⚠️ **Beachte:** Beim Neuanlegen entsteht ein **neues** Element mit **neuer Hosting-URL**, und **vorhandene Daten gehen verloren**. Willst du URL und Daten behalten, lösche das Element nicht, sondern deploye einfach erneut darauf (`npm run rayfin:up`).
+3. Alles neu erstellen – **ein Befehl** legt **App und SQL-Datenbank zusammen in denselben Workspace** (plus das Frontend). Wähle einen der beiden Wege:
+
+   **A) Bestehenden Workspace nutzen:**
+
+   ```powershell
+   npx rayfin up --workspace "DEIN-WORKSPACE-NAME"
+   ```
+
+   **B) Neuen Workspace automatisch anlegen lassen:**
+
+   ```powershell
+   npm run rayfin:up
+   ```
+
+> ⚠️ **Beachte:** Beim Neuanlegen entstehen ein **neues** Element und eine **leere** Datenbank mit **neuer Hosting-URL**; vorhandene Daten gehen verloren. Willst du URL und Daten behalten, lösche das Element nicht, sondern deploye einfach erneut darauf (`npm run rayfin:up`).
+
+Mehr Details (inkl. Workspace aufräumen) stehen in **[doc/SEMINAR-Workspace-Bereinigung-und-Redeploy.md](./doc/SEMINAR-Workspace-Bereinigung-und-Redeploy.md)**, Abschnitte 4–6.
 
 ---
 
